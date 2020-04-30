@@ -49,6 +49,16 @@ const Flight = db.define('flight', {
             }
         }
     },
+	returnDate:{
+		type: Sequelize.DATE,
+        validate: {
+            isAfterArrivalDate(value){
+                if (value.getTime() <= this.arrivalDate.getTime()){
+                    throw new Error('invalid return date!. return date must occur after the arrival date.');
+                }
+            }
+        }
+	},
     totalNumberOfPersons: {
         type: Sequelize.INTEGER,
         allowNull: false,

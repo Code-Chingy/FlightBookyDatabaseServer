@@ -34,8 +34,8 @@ const Reservation = db.define('reservation', {
         allowNull: false,
         validate: {
             isIn: {
-                args: [['coach', 'economy', 'first-class']],
-                msg: "travel class must be in ['coach', 'economy', 'first-class']"
+                args: [['coach', 'economy', 'first-class', 'premium-economy', 'business']],
+                msg: "travel class must be in ['coach', 'economy', 'first-class', 'premium-economy', 'business']"
             }
         }
     },
