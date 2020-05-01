@@ -2,6 +2,7 @@ const express       = require("express");
 const bcrypt        = require('bcrypt');
 const jwt           = require('jsonwebtoken');
 const Admin         = require('../models/admin');
+const User          = require('../models/user');
 const Functions     = require('../utils/functions');
 const MiddleWares   = require('../config/middlewares');
 
@@ -76,6 +77,37 @@ router.post("/", (req, res)=>{
       res.status(500).json({status: 'failed', result: {message: "you passed in invalid arguments.. we require a firstname, lastname, email, phone and password!."}});
   }
 });
+
+router.get("/users", MiddleWares.adminAuthRequired, (req, res)=>{
+	User.findAll({ where: { } }).then((users) => {
+        res.status(200).json({status: 'success', result: { data: users }});       
+    }).catch((err) => {
+        res.status(500).json({status: 'failed', result: {message: 'unable to get users', error: err}});
+    });
+});
+
+
+router.get("/users/:id", MiddleWares.adminAuthRequired, (req, res)=>{
+	User.findOne({ where: {id: id}}).then((user) => {
+        res.status(200).json({status: 'success', result: { data: user }});       
+    }).catch((err) => {
+        res.status(500).json({status: 'failed', result: {message: 'unable to get user', error: err}});
+    });
+});
+
+
+router.delete("/users/:id", MiddleWares.adminAuthRequired, (req, res)=>{
+    User.destroy({
+        where: {
+            id: id
+        }
+    }).then(() => {
+        res.status(200).json({status: 'success', result: {message: 'deleted user successfully'}});
+    }).catch((err)=>{ 
+        res.status(500).json({status: 'failed', result: {message: 'unable to delete user', error: err}});
+    });
+});
+
 
 router.get("/", MiddleWares.adminAuthRequired, (req, res)=>{
   req.admin.password = undefined;
