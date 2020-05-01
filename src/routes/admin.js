@@ -61,10 +61,8 @@ router.post("/", (req, res)=>{
                     username: data.username.trim(),
                     password: hash,
                 }).then((admin)=>{
-                    console.log("new admin added : ", admin.dataValues);
                     res.status(200).json({status: 'success', result: {data: admin}});
                 }).catch((err)=>{
-                    console.log("error adding new admin : ", err);
                     res.status(500).json({status: 'failed', result: {message: 'unable to create account', error: err}});
                 });
             });

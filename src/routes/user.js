@@ -61,10 +61,8 @@ router.post("/", (req, res)=>{
                     phone: data.phone.trim(),
                     password: hash,
                 }).then((user)=>{
-                    console.log("new user added : ", user.dataValues);
                     res.status(200).json({status: 'success', result: {data: user}});
                 }).catch((err)=>{
-                    console.log("error adding new user : ", err);
                     res.status(500).json({status: 'failed', result: {message: 'unable to create account', error: err}});
                 });
             });

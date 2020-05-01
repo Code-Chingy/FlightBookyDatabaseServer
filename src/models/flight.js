@@ -52,9 +52,13 @@ const Flight = db.define('flight', {
 	returnDate:{
 		type: Sequelize.DATE,
         validate: {
-            isAfterArrivalDate(value){
-                if (value.getTime() <= this.arrivalDate.getTime()){
-                    throw new Error('invalid return date!. return date must occur after the arrival date.');
+            isAfterArrivalDateOrRequired(value){
+                if (this.flightType === 'round-trip'){
+					if (!value){
+						throw new Error('return date is required for round-trips');
+					}else if (value.getTime() <= this.arrivalDate.getTime()){
+						throw new Error('invalid return date!. return date must occur after the arrival date');
+					}
                 }
             }
         }

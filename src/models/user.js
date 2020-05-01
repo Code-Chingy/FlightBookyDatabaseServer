@@ -8,9 +8,11 @@ const User = db.define('user', {
     // attributes
     firstname: {
       type: Sequelize.STRING,
+	  allowNull: false
     },
     lastname: {
       type: Sequelize.STRING,
+	  allowNull: false
     },
     othername:  {
         type: Sequelize.STRING,
@@ -25,6 +27,7 @@ const User = db.define('user', {
     },
     phone:  {
         type: Sequelize.STRING,
+		allowNull: false,
         unique: true
     },
     address:  {

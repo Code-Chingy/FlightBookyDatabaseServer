@@ -45,9 +45,9 @@ router.post("/", MiddleWares.userAuthRequired, (req, res)=>{
 });
 
 router.get("/", MiddleWares.userAuthRequired, (req, res)=>{
-    let whereClause = req.body;
-    if (!whereClause) whereClause = {};
-    whereClause.userID = req.user.id;
+    let whereClause = {
+		userID:req.user.id
+	}
     Reservation.findAll({where: whereClause}).then((reservations) => {
         res.status(200).json({status: 'success', result: { data: reservations }});       
     }).catch((err) => {
@@ -105,6 +105,54 @@ router.put("/:id", MiddleWares.userAuthRequired, (req, res)=>{
         res.status(200).json({status: 'success', result: {data: reservation, message: 'updated reservation successfully'}});
     }).catch((err)=>{ 
         res.status(500).json({status: 'failed', result: {message: 'unable to update reservation', error: err}});
+    });
+});
+
+
+router.post("/query", MiddleWares.userAuthRequired, (req, res)=>{
+	console.log("queryOptions: ", req.body);
+	let options = req.body
+	if (!options.hasOwnProperty('where')) options.where = { }; 
+	if (!options.hasOwnProperty('limit')) options.limit = 20; 
+	if (!options.hasOwnProperty('order')) options.order = [['createdAt', 'DESC']];
+	
+	options.where.userID = req.user.id;
+	
+	if (options.where.hasOwnProperty('anyField') || options.where.hasOwnProperty('allField')){
+		let anyField = options.where.anyField;
+		let allField = options.where.allField;
+		let query = anyField ? anyField : allField;
+		delete options.where.anyField;
+		delete options.where.allField;
+		options.where[anyField ? '$or': '$and'] = [
+			{
+				flightID: query
+			},
+			{   
+				reservationStatus: query
+			},
+			{   
+				travelClass: query
+			},
+			{   
+				numberOfPersons: query
+			},
+			{   
+				paymentAmount: query
+			},
+			{   
+				paymentDate: query
+			}
+		]
+		
+	}
+	
+	console.log(options);
+	
+    Flight.findAll(options).then((flights) => {
+        res.status(200).json({status: 'success', result: { data: flights}});
+    }).catch((err)=>{
+        res.status(500).json({status: 'failed', result: {message: 'unable to get flights', error: err}});
     });
 });
 

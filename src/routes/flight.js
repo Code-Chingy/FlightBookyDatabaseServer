@@ -17,6 +17,7 @@ router.post("/", MiddleWares.adminAuthRequired, (req, res)=>{
             flightType: data.flightType, //one-way, round-trip
             departureDate: data.departureDate, //validate not less than date.now
             arrivalDate: data.arrivalDate, //validate not departureDate
+			returnDate: data.returnDate,
             totalNumberOfPersons: data.totalNumberOfPersons, //validate > 1
             price: data.price
         }).then((flight) => {
@@ -34,7 +35,7 @@ router.post("/", MiddleWares.adminAuthRequired, (req, res)=>{
 
 });
 
-router.get("/", MiddleWares.adminAuthRequired, (req, res)=>{
+router.get("/", (req, res)=>{
     Flight.findAll({ where: { } }).then((flights) => {
         res.status(200).json({status: 'success', result: { data: flights}});
     }).catch((err)=>{
@@ -53,7 +54,7 @@ router.delete("/", MiddleWares.adminAuthRequired, (req, res)=>{
     });
 });
 
-router.get("/:id", MiddleWares.adminAuthRequired, (req, res)=>{
+router.get("/:id", (req, res)=>{
     Flight.findOne({
         where: {
             id: req.params.id
@@ -90,12 +91,40 @@ router.put("/:id", MiddleWares.adminAuthRequired, (req, res)=>{
 });
 
 
-router.post("/query", MiddleWares.adminAuthRequired, (req, res)=>{
+router.post("/query", (req, res)=>{
 	console.log("queryOptions: ", req.body);
 	let options = req.body
 	if (!options.hasOwnProperty('where')) options.where = { }; 
 	if (!options.hasOwnProperty('limit')) options.limit = 20; 
 	if (!options.hasOwnProperty('order')) options.order = [['departureDate', 'DESC']];
+	
+	if (options.where.hasOwnProperty('anyField') || options.where.hasOwnProperty('allField')){
+		let anyField = options.where.anyField;
+		let allField = options.where.allField;
+		let query = anyField ? anyField : allField;
+		delete options.where.anyField;
+		delete options.where.allField;
+		options.where[anyField ? '$or': '$and'] = [
+			{
+				id: query
+			},
+			{
+				departureCity: query
+			},
+			{   
+				destinationCity: query
+			},
+			{   
+				flightType: query
+			},
+			{   
+				price: query
+			}
+		]
+		
+	}
+	
+	console.log(options);
 	
     Flight.findAll(options).then((flights) => {
         res.status(200).json({status: 'success', result: { data: flights}});
